@@ -13,6 +13,9 @@ class ReconciliationSession:
     gstr2b_rows: list[dict]
     status: str  # "uploaded" | "processing" | "completed" | "error"
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    matched_records: list[dict] = field(default_factory=list)
+    unmatched_records: list[dict] = field(default_factory=list)
+    summary: dict = field(default_factory=dict)
 
 
 class MockSessionRepository:
@@ -53,6 +56,14 @@ class MockSessionRepository:
 
     def get(self, session_id: str) -> ReconciliationSession | None:
         return self._sessions.get(session_id)
+
+    def update_results(self, session_id: str, matched: list[dict], unmatched: list[dict], summary: dict) -> None:
+        session = self._sessions.get(session_id)
+        if session:
+            session.matched_records = matched
+            session.unmatched_records = unmatched
+            session.summary = summary
+            session.status = "completed"
 
     def list_all(self) -> list[ReconciliationSession]:
         return list(self._sessions.values())
