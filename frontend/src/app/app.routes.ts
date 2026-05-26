@@ -12,5 +12,10 @@ export const routes: Routes = [
     canActivate: [authGuard],
     loadComponent: () => import('./modules/dashboard/dashboard.component').then((m) => m.DashboardComponent),
   },
+  {
+    path: 'reconciliation/:sessionId',
+    canActivate: [authGuard],
+    loadComponent: () => import('./modules/reconciliation/reconciliation.component').then((m) => m.ReconciliationComponent),
+  },
   { path: '**', redirectTo: 'dashboard' },
 ];

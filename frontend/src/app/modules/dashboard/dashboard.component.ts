@@ -94,7 +94,7 @@ export class DashboardComponent implements OnDestroy {
         next: (session) => {
           this.session = session;
           this.isStarting = false;
-          // Phase 3 will navigate to: this.router.navigate(['/reconciliation', session.session_id]);
+          this.router.navigate(['/reconciliation', session.session_id]);
         },
         error: (err) => {
           this.isStarting = false;

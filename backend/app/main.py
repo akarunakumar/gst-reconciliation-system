@@ -2,6 +2,7 @@ from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
 
 from app.api.v1.auth import router as auth_router
+from app.api.v1.reconciliation import router as reconciliation_router
 from app.api.v1.upload import router as upload_router
 from app.core.config import settings
 from app.middleware.cors import add_cors
@@ -18,6 +19,7 @@ add_cors(app)
 
 app.include_router(auth_router, prefix="/api/v1")
 app.include_router(upload_router, prefix="/api/v1")
+app.include_router(reconciliation_router, prefix="/api/v1")
 
 
 @app.exception_handler(Exception)

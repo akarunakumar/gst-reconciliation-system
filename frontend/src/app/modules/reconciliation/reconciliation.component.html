@@ -1,0 +1,229 @@
+<div class="recon-page">
+
+  <!-- Header -->
+  <header class="dash-header">
+    <div class="header-brand">
+      <mat-icon class="header-icon">account_balance</mat-icon>
+      <span class="header-title">GST Reconciliation</span>
+    </div>
+    <div class="header-actions">
+      <div class="user-chip">
+        <mat-icon>person</mat-icon>
+        <span>{{ user?.username }}</span>
+      </div>
+      <button mat-icon-button (click)="logout()" matTooltip="Sign Out" class="logout-btn">
+        <mat-icon>logout</mat-icon>
+      </button>
+    </div>
+  </header>
+
+  <!-- Loading -->
+  @if (isLoading) {
+    <div class="loading-state">
+      <mat-spinner diameter="48" color="accent"></mat-spinner>
+      <p>Running reconciliation engine...</p>
+    </div>
+  }
+
+  @if (!isLoading && summary) {
+    <main class="recon-main" @fadeIn>
+
+      <!-- Page title row -->
+      <div class="page-title-row">
+        <div>
+          <button mat-button class="back-btn" (click)="goBack()">
+            <mat-icon>arrow_back</mat-icon> Back
+          </button>
+          <h1>Reconciliation Results</h1>
+          <p class="session-name">{{ summary.session_name }} &bull; Session {{ summary.session_id.slice(0,8) }}</p>
+        </div>
+        <button mat-raised-button color="accent" class="export-btn" (click)="exportExcel()">
+          <mat-icon>download</mat-icon> Export Excel
+        </button>
+      </div>
+
+      <!-- Summary cards -->
+      <div class="summary-grid">
+        <div class="summary-card total">
+          <mat-icon>description</mat-icon>
+          <div class="card-body">
+            <span class="card-value">{{ summary.total_invoice_records }}</span>
+            <span class="card-label">Total Invoices</span>
+          </div>
+        </div>
+        <div class="summary-card matched">
+          <mat-icon>check_circle</mat-icon>
+          <div class="card-body">
+            <span class="card-value">{{ summary.matched_count }}</span>
+            <span class="card-label">Matched</span>
+            <span class="card-pct">{{ summary.match_percentage }}%</span>
+          </div>
+        </div>
+        <div class="summary-card mismatch">
+          <mat-icon>warning</mat-icon>
+          <div class="card-body">
+            <span class="card-value">{{ summary.amount_mismatch_count + summary.gstin_mismatch_count }}</span>
+            <span class="card-label">Mismatches</span>
+          </div>
+        </div>
+        <div class="summary-card only-inv">
+          <mat-icon>remove_circle_outline</mat-icon>
+          <div class="card-body">
+            <span class="card-value">{{ summary.only_in_invoice_count }}</span>
+            <span class="card-label">Only in Invoice</span>
+          </div>
+        </div>
+        <div class="summary-card only-g2b">
+          <mat-icon>add_circle_outline</mat-icon>
+          <div class="card-body">
+            <span class="card-value">{{ summary.only_in_gstr2b_count }}</span>
+            <span class="card-label">Only in GSTR2B</span>
+          </div>
+        </div>
+        <div class="summary-card amount">
+          <mat-icon>currency_rupee</mat-icon>
+          <div class="card-body">
+            <span class="card-value">₹{{ summary.taxable_difference | number:'1.0-0' }}</span>
+            <span class="card-label">Taxable Difference</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tab-bar">
+        <button class="tab-btn" [class.active]="activeTab === 'matched'" (click)="activeTab = 'matched'">
+          <mat-icon>check_circle</mat-icon>
+          Matched Records
+          <span class="tab-count">{{ matchedData?.total ?? 0 }}</span>
+        </button>
+        <button class="tab-btn" [class.active]="activeTab === 'unmatched'" (click)="activeTab = 'unmatched'">
+          <mat-icon>error_outline</mat-icon>
+          Unmatched / Mismatched
+          <span class="tab-count warn">{{ unmatchedData?.total ?? 0 }}</span>
+        </button>
+      </div>
+
+      <!-- ── MATCHED TABLE ── -->
+      @if (activeTab === 'matched' && matchedData) {
+        <div class="table-section" @fadeIn>
+          <div class="table-toolbar">
+            <div class="search-box">
+              <mat-icon>search</mat-icon>
+              <input type="text" placeholder="Search invoice or GSTIN..." [(ngModel)]="matchedSearch" (input)="onMatchedSearch()" />
+            </div>
+            <select class="filter-select" [(ngModel)]="matchStatusFilter" (change)="onMatchedSearch()">
+              <option value="">All Statuses</option>
+              <option value="MATCHED">Matched</option>
+              <option value="AMOUNT_MISMATCH">Amount Mismatch</option>
+              <option value="GSTIN_MISMATCH">GSTIN Mismatch</option>
+            </select>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Invoice No</th>
+                  <th>GSTIN</th>
+                  <th>Vendor Name</th>
+                  <th class="num">Taxable (₹)</th>
+                  <th class="num">IGST (₹)</th>
+                  <th class="num">CGST (₹)</th>
+                  <th class="num">SGST (₹)</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of matchedData.items; track row.invoice_number) {
+                  <tr>
+                    <td class="inv-num">{{ row.invoice_number }}</td>
+                    <td class="gstin">{{ row.gstin }}</td>
+                    <td>{{ row.vendor_name }}</td>
+                    <td class="num">{{ row.taxable_amount | number:'1.2-2' }}</td>
+                    <td class="num">{{ row.igst | number:'1.2-2' }}</td>
+                    <td class="num">{{ row.cgst | number:'1.2-2' }}</td>
+                    <td class="num">{{ row.sgst | number:'1.2-2' }}</td>
+                    <td><span class="badge" [class]="getStatusClass(row.match_status)">{{ row.match_status }}</span></td>
+                  </tr>
+                }
+                @if (matchedData.items.length === 0) {
+                  <tr><td colspan="8" class="empty-row">No records found</td></tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <div class="pagination">
+            <span class="pag-info">Showing {{ (matchedPage-1)*pageSize+1 }}–{{ minVal(matchedPage*pageSize, matchedData.total) }} of {{ matchedData.total }}</span>
+            <div class="pag-btns">
+              <button [disabled]="matchedPage === 1" (click)="setMatchedPage(matchedPage-1)"><mat-icon>chevron_left</mat-icon></button>
+              @for (p of pageRange(matchedTotalPages()); track p) {
+                <button [class.active]="p === matchedPage" (click)="setMatchedPage(p)">{{ p }}</button>
+              }
+              <button [disabled]="matchedPage === matchedTotalPages()" (click)="setMatchedPage(matchedPage+1)"><mat-icon>chevron_right</mat-icon></button>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- ── UNMATCHED TABLE ── -->
+      @if (activeTab === 'unmatched' && unmatchedData) {
+        <div class="table-section" @fadeIn>
+          <div class="table-toolbar">
+            <div class="search-box">
+              <mat-icon>search</mat-icon>
+              <input type="text" placeholder="Search invoice or GSTIN..." [(ngModel)]="unmatchedSearch" (input)="onUnmatchedSearch()" />
+            </div>
+            <select class="filter-select" [(ngModel)]="missingSourceFilter" (change)="onUnmatchedSearch()">
+              <option value="">All Types</option>
+              <option value="GSTR2B">Only in Invoice</option>
+              <option value="INVOICE">Only in GSTR2B</option>
+              <option value="NONE">Mismatch</option>
+            </select>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Invoice No</th>
+                  <th>GSTIN</th>
+                  <th>Mismatch Reason</th>
+                  <th>Source</th>
+                  <th class="num">Amt Diff (₹)</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of unmatchedData.items; track row.invoice_number) {
+                  <tr>
+                    <td class="inv-num">{{ row.invoice_number }}</td>
+                    <td class="gstin">{{ row.gstin }}</td>
+                    <td class="reason">{{ row.mismatch_reason }}</td>
+                    <td><span class="badge" [class]="getMissingSourceClass(row.missing_source)">{{ row.missing_source }}</span></td>
+                    <td class="num">{{ row.amount_difference | number:'1.2-2' }}</td>
+                  </tr>
+                }
+                @if (unmatchedData.items.length === 0) {
+                  <tr><td colspan="5" class="empty-row">No unmatched records</td></tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <div class="pagination">
+            <span class="pag-info">Showing {{ (unmatchedPage-1)*pageSize+1 }}–{{ minVal(unmatchedPage*pageSize, unmatchedData.total) }} of {{ unmatchedData.total }}</span>
+            <div class="pag-btns">
+              <button [disabled]="unmatchedPage === 1" (click)="setUnmatchedPage(unmatchedPage-1)"><mat-icon>chevron_left</mat-icon></button>
+              @for (p of pageRange(unmatchedTotalPages()); track p) {
+                <button [class.active]="p === unmatchedPage" (click)="setUnmatchedPage(p)">{{ p }}</button>
+              }
+              <button [disabled]="unmatchedPage === unmatchedTotalPages()" (click)="setUnmatchedPage(unmatchedPage+1)"><mat-icon>chevron_right</mat-icon></button>
+            </div>
+          </div>
+        </div>
+      }
+
+    </main>
+  }
+
+</div>
