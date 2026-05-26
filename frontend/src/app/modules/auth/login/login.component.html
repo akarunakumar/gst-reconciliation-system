@@ -1,0 +1,95 @@
+<div class="login-page">
+  <!-- Background decoration -->
+  <div class="bg-overlay"></div>
+  <div class="bg-grid"></div>
+
+  <!-- Login card -->
+  <div class="login-card-wrapper" @fadeInUp>
+    <div class="login-card">
+
+      <!-- Brand header -->
+      <div class="brand-header">
+        <div class="brand-icon">
+          <mat-icon>account_balance</mat-icon>
+        </div>
+        <h1 class="brand-title">GST Reconciliation</h1>
+        <p class="brand-subtitle">Enterprise Finance Platform</p>
+      </div>
+
+      <!-- Divider -->
+      <div class="card-divider"></div>
+
+      <!-- Form section -->
+      <div class="form-section">
+        <h2 class="form-title">Sign In</h2>
+        <p class="form-hint">Enter your credentials to access the portal</p>
+
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
+
+          <!-- Username -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Username</mat-label>
+            <mat-icon matPrefix>person_outline</mat-icon>
+            <input matInput formControlName="username" autocomplete="username" placeholder="Enter username" />
+            @if (username.invalid && username.touched) {
+              <mat-error>Username is required</mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Password -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Password</mat-label>
+            <mat-icon matPrefix>lock_outline</mat-icon>
+            <input
+              matInput
+              [type]="hidePassword ? 'password' : 'text'"
+              formControlName="password"
+              autocomplete="current-password"
+              placeholder="Enter password"
+            />
+            <button mat-icon-button matSuffix type="button" (click)="hidePassword = !hidePassword" [attr.aria-label]="'Toggle password visibility'">
+              <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+            @if (password.invalid && password.touched) {
+              <mat-error>Password is required</mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Remember me -->
+          <div class="remember-row">
+            <mat-checkbox formControlName="rememberMe" color="primary">Remember me</mat-checkbox>
+          </div>
+
+          <!-- Submit button -->
+          <button
+            mat-raised-button
+            color="primary"
+            type="submit"
+            class="submit-btn"
+            [disabled]="loginForm.invalid || isLoading"
+          >
+            @if (isLoading) {
+              <mat-spinner diameter="20" color="accent"></mat-spinner>
+              <span>Authenticating...</span>
+            } @else {
+              <mat-icon>login</mat-icon>
+              <span>Sign In</span>
+            }
+          </button>
+
+        </form>
+      </div>
+
+      <!-- Footer -->
+      <div class="card-footer">
+        <p>Secured by JWT &bull; Enterprise Grade &bull; GST Compliant</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Bottom watermark -->
+  <div class="page-footer">
+    <span>© {{ year }} GST Reconciliation System &bull; All rights reserved</span>
+  </div>
+</div>

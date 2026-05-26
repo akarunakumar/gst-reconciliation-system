@@ -1,0 +1,24 @@
+@import 'bootstrap/dist/css/bootstrap.min.css';
+@import 'bootstrap-icons/font/bootstrap-icons.css';
+
+:root {
+  --gst-navy: #0d1b2a;
+  --gst-accent: #1e88e5;
+  --gst-gold: #f5a623;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
+  background: var(--gst-navy);
+}
+
+// Snackbar error style
+.snack-error .mdc-snackbar__surface {
+  background: #c62828 !important;
+  color: #fff !important;
+}

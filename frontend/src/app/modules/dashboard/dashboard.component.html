@@ -1,0 +1,140 @@
+<div class="dashboard">
+
+  <!-- Top Header -->
+  <header class="dash-header">
+    <div class="header-brand">
+      <mat-icon class="header-icon">account_balance</mat-icon>
+      <span class="header-title">GST Reconciliation</span>
+    </div>
+    <div class="header-actions">
+      <div class="user-chip">
+        <mat-icon>person</mat-icon>
+        <span>{{ user?.username }}</span>
+        <span class="role-badge">{{ user?.role }}</span>
+      </div>
+      <button mat-icon-button (click)="logout()" matTooltip="Sign Out" class="logout-btn">
+        <mat-icon>logout</mat-icon>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="dash-main" @fadeIn>
+
+    <!-- Page title -->
+    <div class="page-title">
+      <h1>New Reconciliation</h1>
+      <p>Upload your Invoice and GSTR2B Excel files to begin reconciliation</p>
+    </div>
+
+    <!-- Step indicator -->
+    <div class="steps">
+      <div class="step" [class.active]="!!invoiceResult">
+        <span class="step-num">1</span>
+        <span>Upload Invoices</span>
+      </div>
+      <div class="step-line"></div>
+      <div class="step" [class.active]="!!gstr2bResult">
+        <span class="step-num">2</span>
+        <span>Upload GSTR2B</span>
+      </div>
+      <div class="step-line"></div>
+      <div class="step" [class.active]="!!session">
+        <span class="step-num">3</span>
+        <span>Start Reconciliation</span>
+      </div>
+    </div>
+
+    <!-- Upload zones -->
+    <div class="upload-grid">
+      <div class="upload-card">
+        <div class="upload-card-header">
+          <mat-icon>receipt_long</mat-icon>
+          <span>Purchase Invoice Excel</span>
+        </div>
+        <app-file-drop-zone
+          label="Invoice Excel File"
+          description="Drag & drop or click to browse"
+          [uploadFn]="invoiceUploadFn"
+          (uploadComplete)="onInvoiceUploaded($event)"
+          (uploadError)="onUploadError($event)"
+        ></app-file-drop-zone>
+        <p class="field-hint">Required columns: invoice_number, gstin, vendor_name, taxable_amount, igst, cgst, sgst</p>
+      </div>
+
+      <div class="upload-card">
+        <div class="upload-card-header">
+          <mat-icon>fact_check</mat-icon>
+          <span>GSTR2B Excel</span>
+        </div>
+        <app-file-drop-zone
+          label="GSTR2B Excel File"
+          description="Drag & drop or click to browse"
+          [uploadFn]="gstr2bUploadFn"
+          (uploadComplete)="onGstr2bUploaded($event)"
+          (uploadError)="onUploadError($event)"
+        ></app-file-drop-zone>
+        <p class="field-hint">Required columns: invoice_number, gstin, taxable_amount, igst, cgst, sgst</p>
+      </div>
+    </div>
+
+    <!-- Start button -->
+    <div class="action-row">
+      <button
+        mat-raised-button
+        color="primary"
+        class="start-btn"
+        [disabled]="!canStart"
+        (click)="startReconciliation()"
+      >
+        @if (isStarting) {
+          <mat-spinner diameter="20" color="accent"></mat-spinner>
+          <span>Starting...</span>
+        } @else {
+          <mat-icon>play_circle</mat-icon>
+          <span>Start Reconciliation</span>
+          <mat-icon>arrow_forward</mat-icon>
+        }
+      </button>
+      @if (!invoiceResult || !gstr2bResult) {
+        <p class="action-hint">Upload both files to continue</p>
+      }
+    </div>
+
+    <!-- Session status card -->
+    @if (session) {
+      <div class="session-card" @fadeIn>
+        <div class="session-header">
+          <mat-icon class="session-icon">check_circle</mat-icon>
+          <div>
+            <h3>Session Created</h3>
+            <p>{{ session.message }}</p>
+          </div>
+        </div>
+        <div class="session-meta">
+          <div class="meta-item">
+            <span class="meta-label">Session ID</span>
+            <code class="meta-value">{{ session.session_id }}</code>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Status</span>
+            <span class="status-badge">{{ session.status }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Invoice Records</span>
+            <span class="meta-value">{{ session.invoice_row_count }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">GSTR2B Records</span>
+            <span class="meta-value">{{ session.gstr2b_row_count }}</span>
+          </div>
+        </div>
+        <p class="phase3-hint">
+          <mat-icon>info</mat-icon>
+          Reconciliation engine (Phase 3) will process this session next.
+        </p>
+      </div>
+    }
+
+  </main>
+</div>

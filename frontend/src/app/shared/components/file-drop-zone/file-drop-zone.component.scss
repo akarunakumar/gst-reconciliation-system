@@ -1,0 +1,148 @@
+$navy: #0d1b2a;
+$accent: #1e88e5;
+$accent-light: #42a5f5;
+$success: #43a047;
+$error: #e53935;
+$border: rgba(255, 255, 255, 0.15);
+
+.drop-zone {
+  position: relative;
+  min-height: 220px;
+  border: 2px dashed $border;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.04);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, transform 0.15s;
+  padding: 1.5rem;
+
+  &:hover:not(.uploading):not(.success) {
+    border-color: rgba($accent, 0.6);
+    background: rgba($accent, 0.05);
+  }
+
+  &.dragover {
+    border-color: $accent;
+    background: rgba($accent, 0.1);
+    transform: scale(1.02);
+  }
+
+  &.uploading {
+    border-color: rgba($accent-light, 0.5);
+    cursor: default;
+  }
+
+  &.success {
+    border-color: rgba($success, 0.6);
+    background: rgba($success, 0.06);
+    cursor: default;
+  }
+
+  &.error {
+    border-color: rgba($error, 0.6);
+    background: rgba($error, 0.05);
+  }
+}
+
+.dz-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  text-align: center;
+  width: 100%;
+}
+
+.dz-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  color: rgba(255, 255, 255, 0.4);
+
+  &.spin {
+    animation: spin 1.2s linear infinite;
+    color: $accent-light;
+  }
+
+  &.success-icon { color: $success; }
+  &.error-icon   { color: $error; }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.dz-label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #fff;
+  margin: 0;
+  word-break: break-all;
+}
+
+.dz-hint {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin: 0;
+}
+
+.error-text { color: lighten($error, 20%); }
+
+.dz-badge {
+  font-size: 0.7rem;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.5);
+  padding: 2px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.5px;
+}
+
+.dz-progress {
+  width: 80%;
+  border-radius: 4px;
+  margin-top: 0.5rem;
+}
+
+.success-content { cursor: default; }
+
+.col-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: center;
+  margin-top: 0.25rem;
+}
+
+.col-tag {
+  font-size: 0.68rem;
+  background: rgba($accent, 0.2);
+  color: $accent-light;
+  padding: 2px 8px;
+  border-radius: 20px;
+}
+
+.reset-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 0.5rem;
+  padding: 4px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  mat-icon { font-size: 14px; width: 14px; height: 14px; }
+
+  &:hover {
+    border-color: rgba(255, 255, 255, 0.4);
+    color: #fff;
+    background: rgba(255, 255, 255, 0.05);
+  }
+}

@@ -1,0 +1,67 @@
+<div
+  class="drop-zone"
+  [class.dragover]="state === 'dragover'"
+  [class.uploading]="state === 'uploading'"
+  [class.success]="state === 'success'"
+  [class.error]="state === 'error'"
+  (click)="state !== 'uploading' && fileInput.click()"
+>
+  <input
+    #fileInput
+    type="file"
+    [accept]="accept"
+    hidden
+    (change)="onFileInput($event)"
+  />
+
+  <!-- Idle / drag-over state -->
+  @if (state === 'idle' || state === 'dragover') {
+    <div class="dz-content">
+      <mat-icon class="dz-icon">cloud_upload</mat-icon>
+      <p class="dz-label">{{ label }}</p>
+      <p class="dz-hint">{{ description }}</p>
+      <span class="dz-badge">{{ accept }}</span>
+    </div>
+  }
+
+  <!-- Uploading state -->
+  @if (state === 'uploading') {
+    <div class="dz-content">
+      <mat-icon class="dz-icon spin">sync</mat-icon>
+      <p class="dz-label">Uploading...</p>
+      <mat-progress-bar mode="indeterminate" color="accent" class="dz-progress"></mat-progress-bar>
+    </div>
+  }
+
+  <!-- Success state -->
+  @if (state === 'success' && result) {
+    <div class="dz-content success-content" (click)="$event.stopPropagation()">
+      <mat-icon class="dz-icon success-icon">check_circle</mat-icon>
+      <p class="dz-label">{{ result.filename }}</p>
+      <p class="dz-hint">{{ result.row_count }} records loaded</p>
+      <div class="col-tags">
+        @for (col of result.columns.slice(0, 4); track col) {
+          <span class="col-tag">{{ col }}</span>
+        }
+        @if (result.columns.length > 4) {
+          <span class="col-tag">+{{ result.columns.length - 4 }} more</span>
+        }
+      </div>
+      <button class="reset-btn" (click)="reset()">
+        <mat-icon>refresh</mat-icon> Replace
+      </button>
+    </div>
+  }
+
+  <!-- Error state -->
+  @if (state === 'error') {
+    <div class="dz-content">
+      <mat-icon class="dz-icon error-icon">error_outline</mat-icon>
+      <p class="dz-label">Upload Failed</p>
+      <p class="dz-hint error-text">{{ errorMessage }}</p>
+      <button class="reset-btn" (click)="reset(); $event.stopPropagation()">
+        <mat-icon>refresh</mat-icon> Try Again
+      </button>
+    </div>
+  }
+</div>

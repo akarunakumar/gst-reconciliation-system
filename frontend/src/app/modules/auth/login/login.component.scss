@@ -1,0 +1,263 @@
+// ---- Variables ----
+$navy: #0d1b2a;
+$navy-mid: #1b2f48;
+$navy-light: #243b55;
+$accent: #1e88e5;
+$accent-light: #42a5f5;
+$gold: #f5a623;
+$text-muted: rgba(255, 255, 255, 0.55);
+$card-bg: rgba(255, 255, 255, 0.04);
+$card-border: rgba(255, 255, 255, 0.1);
+$radius: 20px;
+
+// ---- Page shell ----
+.login-page {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, $navy 0%, $navy-mid 50%, $navy-light 100%);
+  overflow: hidden;
+  padding: 1rem;
+}
+
+// ---- Decorative background layers ----
+.bg-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 20% 30%, rgba(30, 136, 229, 0.15) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 70%, rgba(245, 166, 35, 0.08) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.bg-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+}
+
+// ---- Card wrapper ----
+.login-card-wrapper {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 460px;
+}
+
+// ---- Card ----
+.login-card {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid $card-border;
+  border-radius: $radius;
+  box-shadow:
+    0 32px 80px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+  padding: 2.5rem 2.5rem 2rem;
+  color: #fff;
+
+  @media (max-width: 480px) {
+    padding: 2rem 1.5rem 1.5rem;
+    border-radius: 16px;
+  }
+}
+
+// ---- Brand header ----
+.brand-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.brand-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, $accent 0%, $accent-light 100%);
+  box-shadow: 0 8px 32px rgba(30, 136, 229, 0.45);
+  margin-bottom: 1rem;
+
+  mat-icon {
+    font-size: 36px;
+    width: 36px;
+    height: 36px;
+    color: #fff;
+  }
+}
+
+.brand-title {
+  font-size: 1.65rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  color: #fff;
+  margin: 0 0 0.25rem;
+}
+
+.brand-subtitle {
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: $gold;
+  margin: 0;
+}
+
+// ---- Divider ----
+.card-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+  margin: 0 -2.5rem 1.75rem;
+}
+
+// ---- Form section ----
+.form-section {
+  .form-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #fff;
+    margin: 0 0 0.25rem;
+  }
+
+  .form-hint {
+    font-size: 0.8rem;
+    color: $text-muted;
+    margin: 0 0 1.5rem;
+  }
+}
+
+// ---- Material field overrides ----
+.full-width {
+  width: 100%;
+  margin-bottom: 0.5rem;
+
+  ::ng-deep {
+    .mat-mdc-text-field-wrapper {
+      background: rgba(255, 255, 255, 0.07) !important;
+      border-radius: 10px;
+    }
+
+    .mdc-notched-outline__leading,
+    .mdc-notched-outline__notch,
+    .mdc-notched-outline__trailing {
+      border-color: rgba(255, 255, 255, 0.2) !important;
+    }
+
+    &:hover .mdc-notched-outline__leading,
+    &:hover .mdc-notched-outline__notch,
+    &:hover .mdc-notched-outline__trailing {
+      border-color: rgba(255, 255, 255, 0.4) !important;
+    }
+
+    .mdc-floating-label,
+    .mat-mdc-floating-label {
+      color: rgba(255, 255, 255, 0.6) !important;
+    }
+
+    .mdc-text-field--focused .mdc-notched-outline__leading,
+    .mdc-text-field--focused .mdc-notched-outline__notch,
+    .mdc-text-field--focused .mdc-notched-outline__trailing {
+      border-color: $accent !important;
+    }
+
+    .mat-mdc-input-element {
+      color: #fff !important;
+      caret-color: $accent-light;
+    }
+
+    .mat-mdc-input-element::placeholder {
+      color: rgba(255, 255, 255, 0.3) !important;
+    }
+
+    .mat-icon[matPrefix] {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 20px;
+      margin-right: 8px;
+    }
+
+    .mat-mdc-icon-button mat-icon {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .mat-mdc-form-field-error {
+      color: #ff6b6b;
+    }
+  }
+}
+
+// ---- Remember row ----
+.remember-row {
+  margin-bottom: 1.25rem;
+
+  ::ng-deep {
+    .mdc-label {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.85rem;
+    }
+  }
+}
+
+// ---- Submit button ----
+.submit-btn {
+  width: 100%;
+  height: 48px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  border-radius: 10px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(135deg, $accent 0%, darken($accent, 10%) 100%) !important;
+  box-shadow: 0 4px 20px rgba(30, 136, 229, 0.4) !important;
+  transition: box-shadow 0.2s, transform 0.15s;
+
+  &:hover:not([disabled]) {
+    box-shadow: 0 6px 28px rgba(30, 136, 229, 0.6) !important;
+    transform: translateY(-1px);
+  }
+
+  &[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  mat-spinner {
+    margin-right: 4px;
+  }
+}
+
+// ---- Card footer ----
+.card-footer {
+  margin-top: 1.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  text-align: center;
+
+  p {
+    font-size: 0.72rem;
+    color: $text-muted;
+    letter-spacing: 0.5px;
+    margin: 0;
+  }
+}
+
+// ---- Page footer ----
+.page-footer {
+  position: absolute;
+  bottom: 1.25rem;
+  z-index: 2;
+  font-size: 0.72rem;
+  color: $text-muted;
+  letter-spacing: 0.3px;
+}

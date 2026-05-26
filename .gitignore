@@ -1,0 +1,20 @@
+# Python / Backend
+backend/venv/
+backend/__pycache__/
+backend/**/__pycache__/
+backend/*.pyc
+backend/.pytest_cache/
+backend/.env
+
+# Node / Angular Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+
+# Environment files (never commit real secrets)
+.env
+*.local.env
+
+# OS
+.DS_Store
+Thumbs.db
