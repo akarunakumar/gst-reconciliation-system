@@ -1,13 +1,4 @@
-$navy: #0d1b2a;
-$navy-mid: #1b2f48;
-$accent: #1e88e5;
-$accent-light: #42a5f5;
-$gold: #f5a623;
-$success: #43a047;
-$danger: #e53935;
-$warning: #fb8c00;
-$border: rgba(255, 255, 255, 0.1);
-$text-muted: rgba(255, 255, 255, 0.5);
+@use 'variables' as *;
 
 // ── Shell ──────────────────────────────────────────────────────
 .recon-page {
@@ -165,7 +156,7 @@ $text-muted: rgba(255, 255, 255, 0.5);
   &.matched mat-icon { color: $success; }
   &.mismatch mat-icon { color: $warning; }
   &.only-inv mat-icon { color: $gold; }
-  &.only-g2b mat-icon { color: #ab47bc; }
+  &.only-g2b mat-icon { color: $purple; }
   &.amount   mat-icon { color: $accent-light; }
 }
 
@@ -366,7 +357,7 @@ td {
 .badge-mismatch  { background: rgba($warning, 0.18); color: $warning; }
 .badge-gstin     { background: rgba($danger, 0.15); color: lighten($danger, 20%); }
 .badge-only-inv  { background: rgba($gold, 0.18); color: $gold; }
-.badge-only-g2b  { background: rgba(#ab47bc, 0.18); color: lighten(#ab47bc, 20%); }
+.badge-only-g2b  { background: rgba($purple, 0.18); color: lighten($purple, 20%); }
 .badge-default   { background: rgba(255, 255, 255, 0.1); color: $text-muted; }
 
 // ── Pagination ─────────────────────────────────────────────────

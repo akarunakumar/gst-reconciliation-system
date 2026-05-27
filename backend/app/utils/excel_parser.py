@@ -24,12 +24,8 @@ def _read_first_sheet(file_bytes: bytes) -> pd.DataFrame:
     return df
 
 
-def parse_invoice_excel(file_bytes: bytes) -> list[dict]:
-    df = _normalize_columns(_read_first_sheet(file_bytes))
-    return _to_records(df)
-
-
-def parse_gstr2b_excel(file_bytes: bytes) -> list[dict]:
+def parse_excel(file_bytes: bytes) -> list[dict]:
+    """Parse any GST-related Excel file into normalised row dicts."""
     df = _normalize_columns(_read_first_sheet(file_bytes))
     return _to_records(df)
 

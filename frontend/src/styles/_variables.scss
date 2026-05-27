@@ -1,0 +1,20 @@
+// Shared design tokens — imported in all component SCSS via stylePreprocessorOptions
+
+$navy:        #0d1b2a;
+$navy-mid:    #1b2f48;
+$accent:      #1e88e5;
+$accent-light:#42a5f5;
+$gold:        #f5a623;
+$success:     #43a047;
+$danger:      #e53935;
+$warning:     #fb8c00;
+$purple:      #ab47bc;
+
+$border:      rgba(255, 255, 255, 0.1);
+$text-muted:  rgba(255, 255, 255, 0.5);
+$text-body:   rgba(255, 255, 255, 0.85);
+
+$header-height: 60px;
+$content-max-width: 1200px;
+$border-radius-card: 14px;
+$border-radius-btn:  10px;

@@ -1,4 +1,10 @@
+from typing import Literal
+
 from pydantic import BaseModel
+
+MatchStatus = Literal["MATCHED", "AMOUNT_MISMATCH", "GSTIN_MISMATCH"]
+MissingSource = Literal["INVOICE", "GSTR2B", "NONE"]
+SessionStatus = Literal["uploaded", "processing", "completed", "error"]
 
 
 class MatchedRecord(BaseModel):
@@ -9,25 +15,21 @@ class MatchedRecord(BaseModel):
     igst: float
     cgst: float
     sgst: float
-    match_status: str       # MATCHED | AMOUNT_MISMATCH | GSTIN_MISMATCH
-    raw_invoice: dict
-    raw_gstr2b: dict | None = None
+    match_status: MatchStatus
 
 
 class UnmatchedRecord(BaseModel):
     invoice_number: str
     gstin: str
     mismatch_reason: str
-    missing_source: str     # INVOICE | GSTR2B
+    missing_source: MissingSource
     amount_difference: float
-    raw_invoice: dict | None = None
-    raw_gstr2b: dict | None = None
 
 
 class ReconciliationSummary(BaseModel):
     session_id: str
     session_name: str
-    status: str
+    status: SessionStatus
     total_invoice_records: int
     total_gstr2b_records: int
     matched_count: int

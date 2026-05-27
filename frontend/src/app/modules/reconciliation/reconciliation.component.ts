@@ -15,8 +15,14 @@ import { Subject, takeUntil } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
 import { ReconciliationService } from '../../core/services/reconciliation.service';
 import {
-  MatchedRecord, PaginatedResponse, ReconciliationSummary, UnmatchedRecord
+  MatchedRecord, PaginatedResponse, ReconciliationSummary, UnmatchedRecord,
 } from '../../models/reconciliation.models';
+
+const STATUS_BADGE_MAP: Record<string, string> = {
+  MATCHED: 'badge-matched',
+  AMOUNT_MISMATCH: 'badge-mismatch',
+  GSTIN_MISMATCH: 'badge-gstin',
+};
 
 @Component({
   selector: 'app-reconciliation',
@@ -51,11 +57,13 @@ export class ReconciliationComponent implements OnInit, OnDestroy {
 
   matchedPage = 1;
   unmatchedPage = 1;
-  pageSize = 20;
+  readonly pageSize = 20;
   matchedSearch = '';
   unmatchedSearch = '';
   matchStatusFilter = '';
   missingSourceFilter = '';
+
+  protected readonly Math = Math;
 
   private destroy$ = new Subject<void>();
 
@@ -67,81 +75,98 @@ export class ReconciliationComponent implements OnInit, OnDestroy {
     private snackBar: MatSnackBar,
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.sessionId = this.route.snapshot.paramMap.get('sessionId') ?? '';
     this.loadSummary();
   }
 
-  loadSummary() {
+  loadSummary(): void {
     this.isLoading = true;
     this.reconcSvc.getSummary(this.sessionId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (s) => { this.summary = s; this.isLoading = false; this.loadMatched(); this.loadUnmatched(); },
+        next: (s) => {
+          this.summary = s;
+          this.isLoading = false;
+          this.loadMatched();
+          this.loadUnmatched();
+        },
         error: () => {
-          // Session exists but hasn't been run yet — run it now
+          // Summary not found — session hasn't been run yet, trigger reconciliation now
           this.reconcSvc.run(this.sessionId)
             .pipe(takeUntil(this.destroy$))
             .subscribe({
-              next: (s) => { this.summary = s; this.isLoading = false; this.loadMatched(); this.loadUnmatched(); },
+              next: (s) => {
+                this.summary = s;
+                this.isLoading = false;
+                this.loadMatched();
+                this.loadUnmatched();
+              },
               error: (err) => {
                 this.isLoading = false;
-                this.snackBar.open(err?.error?.detail ?? 'Failed to run reconciliation', 'Dismiss', { duration: 5000 });
+                const msg = err?.error?.detail ?? 'Failed to run reconciliation';
+                this.snackBar.open(msg, 'Dismiss', { duration: 5000 });
               },
             });
         },
       });
   }
 
-  loadMatched() {
-    this.reconcSvc.getMatched(this.sessionId, this.matchedPage, this.pageSize, this.matchedSearch, this.matchStatusFilter)
+  loadMatched(): void {
+    this.reconcSvc
+      .getMatched(this.sessionId, this.matchedPage, this.pageSize, this.matchedSearch, this.matchStatusFilter)
       .pipe(takeUntil(this.destroy$))
-      .subscribe({ next: (d) => this.matchedData = d });
+      .subscribe({
+        next: (d) => (this.matchedData = d),
+        error: () => this.snackBar.open('Failed to load matched records', 'Dismiss', { duration: 3000 }),
+      });
   }
 
-  loadUnmatched() {
-    this.reconcSvc.getUnmatched(this.sessionId, this.unmatchedPage, this.pageSize, this.unmatchedSearch, this.missingSourceFilter)
+  loadUnmatched(): void {
+    this.reconcSvc
+      .getUnmatched(this.sessionId, this.unmatchedPage, this.pageSize, this.unmatchedSearch, this.missingSourceFilter)
       .pipe(takeUntil(this.destroy$))
-      .subscribe({ next: (d) => this.unmatchedData = d });
+      .subscribe({
+        next: (d) => (this.unmatchedData = d),
+        error: () => this.snackBar.open('Failed to load unmatched records', 'Dismiss', { duration: 3000 }),
+      });
   }
 
-  onMatchedSearch() { this.matchedPage = 1; this.loadMatched(); }
-  onUnmatchedSearch() { this.unmatchedPage = 1; this.loadUnmatched(); }
+  onMatchedSearch(): void { this.matchedPage = 1; this.loadMatched(); }
+  onUnmatchedSearch(): void { this.unmatchedPage = 1; this.loadUnmatched(); }
 
-  setMatchedPage(p: number) { this.matchedPage = p; this.loadMatched(); }
-  setUnmatchedPage(p: number) { this.unmatchedPage = p; this.loadUnmatched(); }
+  setMatchedPage(p: number): void { this.matchedPage = p; this.loadMatched(); }
+  setUnmatchedPage(p: number): void { this.unmatchedPage = p; this.loadUnmatched(); }
 
-  matchedTotalPages(): number { return Math.ceil((this.matchedData?.total ?? 0) / this.pageSize); }
-  unmatchedTotalPages(): number { return Math.ceil((this.unmatchedData?.total ?? 0) / this.pageSize); }
-  minVal(a: number, b: number): number { return Math.min(a, b); }
+  get matchedTotalPages(): number { return Math.ceil((this.matchedData?.total ?? 0) / this.pageSize); }
+  get unmatchedTotalPages(): number { return Math.ceil((this.unmatchedData?.total ?? 0) / this.pageSize); }
 
-  pageRange(total: number): number[] {
-    return Array.from({ length: total }, (_, i) => i + 1);
+  get matchedPageRange(): number[] {
+    return Array.from({ length: this.matchedTotalPages }, (_, i) => i + 1);
   }
 
-  exportExcel() {
-    const url = this.reconcSvc.getExportUrl(this.sessionId);
-    const token = this.auth.getAccessToken();
-    // Use fetch with auth header then trigger download
-    fetch(url, { headers: { Authorization: `Bearer ${token}` } })
-      .then(r => r.blob())
-      .then(blob => {
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `reconciliation_${this.sessionId.slice(0, 8)}.xlsx`;
-        a.click();
-        URL.revokeObjectURL(a.href);
-      })
-      .catch(() => this.snackBar.open('Export failed', 'Dismiss', { duration: 3000 }));
+  get unmatchedPageRange(): number[] {
+    return Array.from({ length: this.unmatchedTotalPages }, (_, i) => i + 1);
+  }
+
+  exportExcel(): void {
+    this.reconcSvc.exportExcel(this.sessionId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (blob) => {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `reconciliation_${this.sessionId.slice(0, 8)}.xlsx`;
+          a.click();
+          URL.revokeObjectURL(url);
+        },
+        error: () => this.snackBar.open('Export failed', 'Dismiss', { duration: 3000 }),
+      });
   }
 
   getStatusClass(status: string): string {
-    const map: Record<string, string> = {
-      MATCHED: 'badge-matched',
-      AMOUNT_MISMATCH: 'badge-mismatch',
-      GSTIN_MISMATCH: 'badge-gstin',
-    };
-    return map[status] ?? 'badge-default';
+    return STATUS_BADGE_MAP[status] ?? 'badge-default';
   }
 
   getMissingSourceClass(src: string): string {
@@ -150,8 +175,8 @@ export class ReconciliationComponent implements OnInit, OnDestroy {
     return 'badge-mismatch';
   }
 
-  goBack() { this.router.navigate(['/dashboard']); }
-  logout() { this.auth.logout(); }
+  goBack(): void { this.router.navigate(['/dashboard']); }
+  logout(): void { this.auth.logout(); }
 
-  ngOnDestroy() { this.destroy$.next(); this.destroy$.complete(); }
+  ngOnDestroy(): void { this.destroy$.next(); this.destroy$.complete(); }
 }
