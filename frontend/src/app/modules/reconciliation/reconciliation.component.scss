@@ -3,7 +3,8 @@
 // ── Shell ──────────────────────────────────────────────────────
 .recon-page {
   min-height: 100vh;
-  background: linear-gradient(160deg, $navy 0%, $navy-mid 100%);
+  background: linear-gradient(160deg, rgba($navy, 0.78) 0%, rgba($navy-mid, 0.84) 100%);
+  backdrop-filter: blur(2px);
   display: flex;
   flex-direction: column;
   color: #fff;
