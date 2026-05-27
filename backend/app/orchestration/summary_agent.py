@@ -1,14 +1,6 @@
 from app.orchestration.base_agent import AgentResult, BaseAgent
+from app.utils.amount_parser import parse_amount
 from app.utils.column_detector import ColumnMap
-
-
-def _safe_float(row: dict, col: str | None) -> float:
-    if not col:
-        return 0.0
-    try:
-        return float(str(row.get(col) or "0").replace(",", ""))
-    except (ValueError, TypeError):
-        return 0.0
 
 
 class SummaryGenerationAgent(BaseAgent):
@@ -29,8 +21,8 @@ class SummaryGenerationAgent(BaseAgent):
         total_inv = len(invoice_rows)
         match_pct = round((matched_count / total_inv * 100), 2) if total_inv else 0.0
 
-        total_taxable_inv = sum(_safe_float(r, inv_map.taxable_amount) for r in invoice_rows)
-        total_taxable_g2b = sum(_safe_float(r, g2b_map.taxable_amount) for r in gstr2b_rows)
+        total_taxable_inv = sum(parse_amount(r, inv_map.taxable_amount) for r in invoice_rows)
+        total_taxable_g2b = sum(parse_amount(r, g2b_map.taxable_amount) for r in gstr2b_rows)
 
         return AgentResult(success=True, data={
             "summary": {

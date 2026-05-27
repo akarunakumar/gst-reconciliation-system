@@ -154,13 +154,13 @@
           </div>
 
           <div class="pagination">
-            <span class="pag-info">Showing {{ (matchedPage-1)*pageSize+1 }}–{{ minVal(matchedPage*pageSize, matchedData.total) }} of {{ matchedData.total }}</span>
+            <span class="pag-info">Showing {{ (matchedPage-1)*pageSize+1 }}–{{ Math.min(matchedPage*pageSize, matchedData.total) }} of {{ matchedData.total }}</span>
             <div class="pag-btns">
               <button [disabled]="matchedPage === 1" (click)="setMatchedPage(matchedPage-1)"><mat-icon>chevron_left</mat-icon></button>
-              @for (p of pageRange(matchedTotalPages()); track p) {
+              @for (p of matchedPageRange; track p) {
                 <button [class.active]="p === matchedPage" (click)="setMatchedPage(p)">{{ p }}</button>
               }
-              <button [disabled]="matchedPage === matchedTotalPages()" (click)="setMatchedPage(matchedPage+1)"><mat-icon>chevron_right</mat-icon></button>
+              <button [disabled]="matchedPage === matchedTotalPages" (click)="setMatchedPage(matchedPage+1)"><mat-icon>chevron_right</mat-icon></button>
             </div>
           </div>
         </div>
@@ -211,13 +211,13 @@
           </div>
 
           <div class="pagination">
-            <span class="pag-info">Showing {{ (unmatchedPage-1)*pageSize+1 }}–{{ minVal(unmatchedPage*pageSize, unmatchedData.total) }} of {{ unmatchedData.total }}</span>
+            <span class="pag-info">Showing {{ (unmatchedPage-1)*pageSize+1 }}–{{ Math.min(unmatchedPage*pageSize, unmatchedData.total) }} of {{ unmatchedData.total }}</span>
             <div class="pag-btns">
               <button [disabled]="unmatchedPage === 1" (click)="setUnmatchedPage(unmatchedPage-1)"><mat-icon>chevron_left</mat-icon></button>
-              @for (p of pageRange(unmatchedTotalPages()); track p) {
+              @for (p of unmatchedPageRange; track p) {
                 <button [class.active]="p === unmatchedPage" (click)="setUnmatchedPage(p)">{{ p }}</button>
               }
-              <button [disabled]="unmatchedPage === unmatchedTotalPages()" (click)="setUnmatchedPage(unmatchedPage+1)"><mat-icon>chevron_right</mat-icon></button>
+              <button [disabled]="unmatchedPage === unmatchedTotalPages" (click)="setUnmatchedPage(unmatchedPage+1)"><mat-icon>chevron_right</mat-icon></button>
             </div>
           </div>
         </div>

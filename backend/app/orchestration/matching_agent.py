@@ -1,5 +1,7 @@
 import logging
+
 from app.orchestration.base_agent import AgentResult, BaseAgent
+from app.utils.amount_parser import parse_amount
 from app.utils.column_detector import ColumnMap
 
 logger = logging.getLogger(__name__)
@@ -11,15 +13,6 @@ def _val(row: dict, col: str | None) -> str:
     if not col:
         return ""
     return str(row.get(col) or "").strip()
-
-
-def _amount(row: dict, col: str | None) -> float:
-    if not col:
-        return 0.0
-    try:
-        return float(str(row.get(col) or "0").replace(",", ""))
-    except (ValueError, TypeError):
-        return 0.0
 
 
 def _norm_inv(val: str) -> str:
@@ -51,10 +44,10 @@ class GSTMatchingAgent(BaseAgent):
             inv_key = _norm_inv(inv_num)
             inv_gstin = _val(row, inv_map.gstin)
             inv_vendor = _val(row, inv_map.vendor_name)
-            inv_taxable = _amount(row, inv_map.taxable_amount)
-            inv_igst = _amount(row, inv_map.igst)
-            inv_cgst = _amount(row, inv_map.cgst)
-            inv_sgst = _amount(row, inv_map.sgst)
+            inv_taxable = parse_amount(row, inv_map.taxable_amount)
+            inv_igst = parse_amount(row, inv_map.igst)
+            inv_cgst = parse_amount(row, inv_map.cgst)
+            inv_sgst = parse_amount(row, inv_map.sgst)
 
             g2b_row = g2b_lookup.get(inv_key) if inv_key else None
 
@@ -72,10 +65,10 @@ class GSTMatchingAgent(BaseAgent):
 
             consumed_g2b_keys.add(inv_key)
             g2b_gstin = _val(g2b_row, g2b_map.gstin)
-            g2b_taxable = _amount(g2b_row, g2b_map.taxable_amount)
-            g2b_igst = _amount(g2b_row, g2b_map.igst)
-            g2b_cgst = _amount(g2b_row, g2b_map.cgst)
-            g2b_sgst = _amount(g2b_row, g2b_map.sgst)
+            g2b_taxable = parse_amount(g2b_row, g2b_map.taxable_amount)
+            g2b_igst = parse_amount(g2b_row, g2b_map.igst)
+            g2b_cgst = parse_amount(g2b_row, g2b_map.cgst)
+            g2b_sgst = parse_amount(g2b_row, g2b_map.sgst)
 
             # GSTIN mismatch check
             if inv_gstin and g2b_gstin and inv_gstin.upper() != g2b_gstin.upper():

@@ -34,7 +34,7 @@ export class ReconciliationService {
     return this.http.get<PaginatedResponse<UnmatchedRecord>>(`${this.base}/reconciliation/unmatched/${sessionId}`, { params });
   }
 
-  getExportUrl(sessionId: string): string {
-    return `${this.base}/reconciliation/export/${sessionId}`;
+  exportExcel(sessionId: string): Observable<Blob> {
+    return this.http.get(`${this.base}/reconciliation/export/${sessionId}`, { responseType: 'blob' });
   }
 }

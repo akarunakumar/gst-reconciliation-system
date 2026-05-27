@@ -4,6 +4,8 @@ export interface UploadResult {
   columns: string[];
   preview: Record<string, unknown>[];
   temp_key: string;
+  warnings: string[];
+  sheets: string[];
 }
 
 export interface StartReconciliationRequest {

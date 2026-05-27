@@ -21,8 +21,9 @@ class ReconciliationSession:
 class MockSessionRepository:
     """In-memory session store. Replace with DBSessionRepository when USE_MOCK_SERVICES=false."""
 
-    _sessions: dict[str, ReconciliationSession] = {}
-    _temp_store: dict[str, dict] = {}  # key → {rows, filename, file_type}
+    def __init__(self) -> None:
+        self._sessions: dict[str, ReconciliationSession] = {}
+        self._temp_store: dict[str, dict] = {}  # key → {rows, filename, file_type}
 
     def store_temp(self, rows: list[dict], filename: str, file_type: str) -> str:
         key = str(uuid.uuid4())

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpEventType, HttpRequest } from '@angular/common/http';
-import { Observable, map, filter } from 'rxjs';
+import { HttpClient, HttpEventType, HttpRequest, HttpResponse } from '@angular/common/http';
+import { Observable, filter, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { SessionResponse, StartReconciliationRequest, UploadResult } from '../../models/upload.models';
 
@@ -27,8 +27,8 @@ export class UploadService {
     formData.append('file', file, file.name);
     const req = new HttpRequest('POST', url, formData, { reportProgress: true });
     return this.http.request<UploadResult>(req).pipe(
-      filter((e) => e.type === HttpEventType.Response),
-      map((e: any) => e.body as UploadResult)
+      filter((e): e is HttpResponse<UploadResult> => e.type === HttpEventType.Response),
+      map((e) => e.body as UploadResult)
     );
   }
 }

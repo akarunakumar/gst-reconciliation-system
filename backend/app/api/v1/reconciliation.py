@@ -1,6 +1,7 @@
-from fastapi import APIRouter, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.responses import Response
 
+from app.core.security import get_current_user
 from app.schemas.reconciliation import (
     MatchedRecord, PaginatedMatchedResponse, PaginatedUnmatchedResponse,
     ReconciliationSummary, UnmatchedRecord,
@@ -10,33 +11,35 @@ from app.utils.export import generate_excel_export
 
 router = APIRouter(prefix="/reconciliation", tags=["Reconciliation"])
 
+_AuthDep = Depends(get_current_user)
+
 
 def _require_session(session_id: str):
     session = get_session(session_id)
     if not session:
-        raise HTTPException(status_code=404, detail=f"Session '{session_id}' not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Session '{session_id}' not found")
     return session
 
 
 def _require_completed(session_id: str):
     session = _require_session(session_id)
-    if session.status not in ("completed",):
-        raise HTTPException(status_code=400, detail="Reconciliation has not been run yet. Call POST /run first.")
+    if session.status != "completed":
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Reconciliation has not been run yet. Call POST /run first.")
     return session
 
 
 @router.post("/run/{session_id}", response_model=ReconciliationSummary)
-def run(session_id: str):
+def run(session_id: str, _: dict = _AuthDep):
     session = run_reconciliation(session_id)
     if not session:
-        raise HTTPException(status_code=404, detail=f"Session '{session_id}' not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Session '{session_id}' not found")
     if session.status == "error":
-        raise HTTPException(status_code=500, detail="Reconciliation engine encountered an error")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Reconciliation engine encountered an error")
     return ReconciliationSummary(session_id=session.id, session_name=session.session_name, status=session.status, **session.summary)
 
 
 @router.get("/summary/{session_id}", response_model=ReconciliationSummary)
-def get_summary(session_id: str):
+def get_summary(session_id: str, _: dict = _AuthDep):
     session = _require_completed(session_id)
     return ReconciliationSummary(session_id=session.id, session_name=session.session_name, status=session.status, **session.summary)
 
@@ -48,6 +51,7 @@ def get_matched(
     page_size: int = Query(20, ge=1, le=100),
     search: str = Query("", description="Filter by invoice number or GSTIN"),
     match_status: str = Query("", description="Filter by match status"),
+    _: dict = _AuthDep,
 ):
     session = _require_completed(session_id)
     items = session.matched_records
@@ -71,6 +75,7 @@ def get_unmatched(
     page_size: int = Query(20, ge=1, le=100),
     search: str = Query("", description="Filter by invoice number or GSTIN"),
     missing_source: str = Query("", description="INVOICE | GSTR2B | NONE"),
+    _: dict = _AuthDep,
 ):
     session = _require_completed(session_id)
     items = session.unmatched_records
@@ -88,7 +93,7 @@ def get_unmatched(
 
 
 @router.get("/export/{session_id}")
-def export_excel(session_id: str):
+def export_excel(session_id: str, _: dict = _AuthDep):
     session = _require_completed(session_id)
     xlsx_bytes = generate_excel_export(session.matched_records, session.unmatched_records, session.summary)
     filename = f"reconciliation_{session_id[:8]}.xlsx"
